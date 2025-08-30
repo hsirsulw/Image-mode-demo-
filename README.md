@@ -122,15 +122,35 @@ bootc status
 
 ### Phase 3: Update & Rollback
 
+In this phase, we demonstrate how **bootc update** and **bootc rollback** work.  
+Unlike the earlier Containerfiles, `Containerfile.update` **starts from the v2 image** you already pushed to Quay.io and only applies the necessary changes.  
+
 #### 1. Build the Updated Image
 
-`Containerfile.update` (httpd config change):
+`Containerfile.update`:
 
 ```dockerfile
-RUN sed -i 's|DocumentRoot "/var/www/html"|DocumentRoot "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf &&     sed -i 's|Directory "/var/www/html"|Directory "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf
+# Start from the previously built RHEL 10 v2 image
+FROM quay.io/<username>/imagemode-demo:v2
 
+# Ensure the new directory exists
+RUN mkdir -p /usr/share/www/html
+
+# Reconfigure httpd to serve from /usr/share/www/html
+RUN sed -i 's|DocumentRoot "/var/www/html"|DocumentRoot "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf && \
+    sed -i 's|Directory "/var/www/html"|Directory "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf
+
+# Copy updated static files
 COPY files/index-update.html /usr/share/www/html/index.html
-```
+
+# (Optional) MOTD message about the change
+RUN echo "Web server document root has been moved to /usr/share/www/html in this update." > /etc/motd.d/30-webroot-change.motd
+
+# Expose required port
+EXPOSE 80 3306
+
+# Default command
+CMD ["/usr/sbin/init"]
 
 Build & push (as `v1` deliberately):
 
