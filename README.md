@@ -151,6 +151,7 @@ EXPOSE 80 3306
 
 # Default command
 CMD ["/usr/sbin/init"]
+```
 
 Build & push (as `v1` deliberately):
 
