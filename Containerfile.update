@@ -1,0 +1,39 @@
+# Pull RHEL 10 bootc base image
+FROM registry.redhat.io/rhel10/rhel-bootc:latest
+
+# Update, install base tools, and create the bootc-user with a hashed password
+RUN dnf -y update && \
+    dnf -y install tmux mkpasswd && \
+    pass=$(mkpasswd --method=SHA-512 --rounds=4096 redhat) && \
+    useradd -m -G wheel bootc-user -p $pass && \
+    echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
+    dnf clean all && rm -rf /var/cache /var/log/dnf
+
+# Install and enable web server and database components
+RUN dnf -y install httpd mariadb mariadb-server vim && \
+    systemctl enable httpd && \
+    systemctl enable mariadb && \
+    dnf clean all && rm -rf /var/cache /var/log/dnf
+
+# Create the directory for the web content if it doesn't exist
+RUN mkdir -p /usr/share/www/html
+
+# Configure httpd to serve from /usr/share/www/html
+RUN sed -i 's|DocumentRoot "/var/www/html"|DocumentRoot "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf && \
+    sed -i 's|Directory "/var/www/html"|Directory "/usr/share/www/html"|' /etc/httpd/conf/httpd.conf
+
+
+# Copy static files after all RUN commands
+COPY files/index-update.html /usr/share/www/html/index.html
+COPY files/00-mariadb-tmpfile.conf /usr/lib/tmpfiles.d/
+
+# Set up MOTD files
+RUN echo "This is a RHEL VM installed using a bootable container as an rpm-ostree source!" > /etc/motd.d/10-first-setup.motd && \
+    echo "This server now supports MariaDB as a database, after last update" > /etc/motd.d/20-upgrade.motd
+
+# Expose the necessary ports
+EXPOSE 80 3306
+
+# Default command for bootc
+CMD ["/usr/sbin/init"]
+
