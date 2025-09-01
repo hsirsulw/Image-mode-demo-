@@ -1,0 +1,4 @@
+[[customizations.user]]
+  name = "hrushabh"
+  password = "redhat"
+  groups = ["wheel"]
