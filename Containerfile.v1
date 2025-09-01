@@ -3,7 +3,7 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.6
 
 # Update, install base tools, and create the bootc-user
 RUN dnf -y update && \
-    dnf -y install httpd mariadb mariadb-server vim openssl && \
+    dnf -y install httpd mariadb mariadb-server vim && \
     useradd -m -G wheel bootc-user && \
     echo "bootc-user:redhat" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
