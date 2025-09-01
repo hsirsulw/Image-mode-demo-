@@ -3,14 +3,14 @@ FROM registry.redhat.io/rhel10/rhel-bootc:latest
 
 # Update, install essential packages, and create the bootc-user
 RUN dnf -y update && \
-    dnf -y install nginx mariadb mariadb-server openssl vim && \
+    dnf -y install httpd mariadb mariadb-server vim && \
     useradd -m -G wheel bootc-user && \
     echo "bootc-user:redhat" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
 # Enable web server and database components (systemd will process these on boot)
-RUN systemctl enable nginx && \
+RUN systemctl enable httpd && \
     systemctl enable mariadb
 
 # Copy static files after all RUN commands
