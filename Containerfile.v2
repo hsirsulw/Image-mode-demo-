@@ -14,7 +14,7 @@ RUN systemctl enable httpd && \
     systemctl enable mariadb
 
 # Copy static files after all RUN commands
-COPY files/index-update.html /usr/share/nginx/html/index.html
+COPY files/index-update.html /usr/share/www/html/index.html
 COPY files/00-mariadb-tmpfile.conf /usr/lib/tmpfiles.d/
 
 # Set up MOTD files
