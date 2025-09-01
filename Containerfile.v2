@@ -1,22 +1,19 @@
 # Pull RHEL 10 bootc base image
 FROM registry.redhat.io/rhel10/rhel-bootc:latest
 
-# Update, install base tools, and create the bootc-user with a hashed password
+# Update, install essential packages, and create the bootc-user with a hashed password
 RUN dnf -y update && \
-    dnf -y install mkpasswd && \
-    pass=$(mkpasswd --method=SHA-512 --rounds=4096 redhat) && \
-    useradd -m -G wheel bootc-user -p $pass && \
+    dnf -y install nginx mariadb mariadb-server vim && \
+    useradd -m -G wheel bootc-user -p redhat && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
-# Install and enable web server and database components
-RUN dnf -y install httpd mariadb mariadb-server vim && \
-    systemctl enable httpd && \
-    systemctl enable mariadb && \
-    dnf clean all && rm -rf /var/cache /var/log/dnf
+# Enable web server and database components
+RUN systemctl enable nginx && \
+    systemctl enable mariadb
 
 # Copy static files after all RUN commands
-COPY files/index-update.html /var/www/html/index.html
+COPY files/index-update.html /usr/share/nginx/html/index.html
 COPY files/00-mariadb-tmpfile.conf /usr/lib/tmpfiles.d/
 
 # Set up MOTD files

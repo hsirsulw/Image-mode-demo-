@@ -3,17 +3,14 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.6
 
 # Update, install base tools, and create the bootc-user with a hashed password
 RUN dnf -y update && \
-    dnf -y install tmux mkpasswd && \
-    pass=$(mkpasswd --method=SHA-512 --rounds=4096 redhat) && \
-    useradd -m -G wheel bootc-user -p $pass && \
+    dnf -y install httpd mariadb mariadb-server vim && \
+    useradd -m -G wheel bootc-user -p redhat && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
-# Install and enable web server and database components
-RUN dnf -y install httpd mariadb mariadb-server vim && \
-    systemctl enable httpd && \
-    systemctl enable mariadb && \
-    dnf clean all && rm -rf /var/cache /var/log/dnf
+# Enable web server and database components
+RUN systemctl enable httpd && \
+    systemctl enable mariadb
 
 # Copy static files after all RUN commands
 COPY files/index.html /var/www/html/index.html
