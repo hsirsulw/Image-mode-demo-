@@ -4,7 +4,8 @@ FROM registry.redhat.io/rhel10/rhel-bootc:latest
 # Update, install essential packages, and create the bootc-user with a hashed password
 RUN dnf -y update && \
     dnf -y install nginx mariadb mariadb-server vim && \
-    useradd -m -G wheel bootc-user -p redhat && \
+    pass=$(openssl passwd -6 redhat) && \
+    useradd -m -G wheel bootc-user -p "$pass" && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 

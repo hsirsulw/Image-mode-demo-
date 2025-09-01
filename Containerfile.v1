@@ -4,7 +4,8 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.6
 # Update, install base tools, and create the bootc-user with a hashed password
 RUN dnf -y update && \
     dnf -y install httpd mariadb mariadb-server vim && \
-    useradd -m -G wheel bootc-user -p redhat && \
+    pass=$(openssl passwd -6 redhat) && \
+    useradd -m -G wheel bootc-user -p "$pass" && \\
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
