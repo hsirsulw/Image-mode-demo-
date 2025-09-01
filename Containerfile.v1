@@ -1,15 +1,15 @@
 # Pull RHEL 9.6 bootc base image
 FROM registry.redhat.io/rhel9/rhel-bootc:9.6
 
-# Update, install base tools, and create the bootc-user with a hashed password
+# Update, install base tools, and create the bootc-user
 RUN dnf -y update && \
     dnf -y install httpd mariadb mariadb-server vim openssl && \
-    pass=$(openssl passwd -6 redhat) && \
-    useradd -m -G wheel bootc-user -p "$pass" && \\
+    useradd -m -G wheel bootc-user && \
+    echo "bootc-user:redhat" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
-# Enable web server and database components
+# Enable web server and database components (systemd will process these symlinks on boot)
 RUN systemctl enable httpd && \
     systemctl enable mariadb
 
