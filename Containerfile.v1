@@ -10,13 +10,13 @@ RUN dnf -y update && \
     dnf clean all && rm -rf /var/cache /var/log/dnf
 
 # Enable web server and database components (systemd will process these symlinks on boot)
-RUN systemctl enable httpd && \
+RUN systemctl enable httpd
 
 # Copy static files after all RUN commands
 COPY files/index.html /var/www/html/index.html
 
 # Set up MOTD files
-RUN echo "This is a RHEL VM installed using a bootable container as an rpm-ostree source!" > /etc/motd.d/10-first-setup.motd && \
+RUN echo "This is a RHEL VM installed using a bootable container as an rpm-ostree source!" > /etc/motd.d/10-first-setup.motd
 
 # Expose the necessary ports
 
