@@ -3,7 +3,7 @@ FROM registry.redhat.io/rhel9/rhel-bootc:9.6
 
 # Update, install base tools, and create the bootc-user
 RUN dnf -y update && \
-    dnf -y install httpd mariadb mariadb-server vim && \
+    dnf -y install httpd vim && \
     useradd -m -G wheel bootc-user && \
     echo "bootc-user:redhat" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
@@ -19,6 +19,7 @@ COPY files/index.html /var/www/html/index.html
 RUN echo "This is a RHEL VM installed using a bootable container as an rpm-ostree source!" > /etc/motd.d/10-first-setup.motd && \
 
 # Expose the necessary ports
+
 EXPOSE 80 
 
 # Default command for bootc
