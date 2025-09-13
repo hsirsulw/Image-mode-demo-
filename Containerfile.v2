@@ -3,7 +3,7 @@ FROM registry.redhat.io/rhel10/rhel-bootc:latest
 
 # Update, install essential packages, and create the bootc-user
 RUN dnf -y update && \
-    dnf -y install httpd mariadb mariadb-server vim && \
+    dnf -y install httpd vim && \
     useradd -m -G wheel bootc-user && \
     echo "bootc-user:redhat" | chpasswd && \
     echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel-sudo && \
@@ -14,15 +14,13 @@ RUN systemctl enable httpd && \
     systemctl enable mariadb
 
 # Copy static files after all RUN commands
-COPY files/index-update.html /usr/share/www/html/index.html
-COPY files/00-mariadb-tmpfile.conf /usr/lib/tmpfiles.d/
+COPY files/index-update.html /var/www/html/index.html
 
 # Set up MOTD files
 RUN echo "This is a RHEL 10 VM installed using a bootable container as an rpm-ostree source!" > /etc/motd.d/10-first-setup.motd && \
-    echo "This server now supports MariaDB as a database, after last update" > /etc/motd.d/20-upgrade.motd
 
 # Expose the necessary ports
-EXPOSE 80 3306
+EXPOSE 80 
 
 # Default command for bootc
 CMD ["/usr/sbin/init"]

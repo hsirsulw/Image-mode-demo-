@@ -15,7 +15,7 @@ COPY files/index-update.html /usr/share/www/html/index.html
 RUN echo "Web server document root has been moved to /usr/share/www/html in this update." > /etc/motd.d/30-webroot-change.motd
 
 # Expose required ports
-EXPOSE 80 3306
+EXPOSE 80 
 
 # Default command
 CMD ["/usr/sbin/init"]
